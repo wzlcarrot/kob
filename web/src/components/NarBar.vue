@@ -1,5 +1,11 @@
 <script setup>
-   
+import { useUserStore } from '@/store/user';   
+const userStore = useUserStore();
+
+const logout = () => {
+  userStore.logout();
+}
+
 </script>
 
 
@@ -21,16 +27,30 @@
         </li>
       </ul>
 
-      <ul class="navbar-nav">
+      <ul class="navbar-nav" v-if="userStore.is_login">
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            小吴同学
-          </a>
+          <router-link class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{userStore.username}}
+          </router-link>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="/user/bot">我的Bot</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">退出</a></li>
+            <li><router-link class="dropdown-item" :to="{name:'user_account_login'}" @click="logout">退出</router-link></li>
           </ul>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav" v-else>
+        <li class="nav-item">
+          <router-link class="nav-link" :to="{name:'user_account_login'}" role="button">
+            登录
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" role="button">
+            注册
+          </a>
         </li>
       </ul>
     </div>

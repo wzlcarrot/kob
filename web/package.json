@@ -12,6 +12,7 @@
     "bootstrap": "^5.3.3",
     "core-js": "^3.8.3",
     "jquery": "^3.7.1",
+    "pinia": "^2.1.7",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@types/jquery": "^3.5.30",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",

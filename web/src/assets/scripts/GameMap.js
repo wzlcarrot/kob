@@ -56,7 +56,7 @@ export class GameMap extends AcGameObject {
         }
         //创建随机障碍物
         for(let i=0;i<this.inner_walls_count;i++){
-            for(let j=0;j<1000;j++){
+            for(let j=0;j<100000;j++){
                 let r = parseInt(Math.random()*this.rows);
                 let c = parseInt(Math.random()*this.cols);
                 if (g[r][c] || g[this.rows - 1 - r][this.cols - 1 - c]) continue;

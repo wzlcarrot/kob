@@ -32,7 +32,7 @@
 import ContentField from '@/components/ContentField.vue'
 import { ref } from 'vue';
 import {useUserStore} from '@/store/user';
-import router from '@/router';
+import router from '@/router/index'
 
 
 const userStore = useUserStore();
@@ -40,10 +40,11 @@ const userStore = useUserStore();
     const username = ref('');
     const password = ref('');
     const message = ref('');
+
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-
+  
    //定义一个登录触发函数
    const login = async() => {
         // 清空消息提示
@@ -62,8 +63,8 @@ const userStore = useUserStore();
                 username: username.value,
                 password: password.value
             });
-            await sleep(1000);
-            console.log("id:"+userStore.id);
+           
+          
             router.push({name:"home"});
         }
         else{

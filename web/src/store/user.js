@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import $ from 'jquery';
 import  { ref } from 'vue';
 
-
 export const useUserStore = defineStore('user',()=>{
   
     let id =  ref(""); //id号
@@ -11,6 +10,7 @@ export const useUserStore = defineStore('user',()=>{
     let token = ref(""); //令牌号
     let is_login = ref(false); //是否登录
     let pulling_info = ref(true); // 是否正在从云端拉取信息
+  
     
     //登录
     const login = (data) =>{
@@ -24,6 +24,7 @@ export const useUserStore = defineStore('user',()=>{
           },
           success(resp){
             if(resp.message==="success"){
+              //把token存储到浏览器中
               localStorage.setItem("jwt_token", resp.token);
               //登录成功生成了token
               token.value = resp.token;
@@ -69,12 +70,16 @@ export const useUserStore = defineStore('user',()=>{
       });  
   }
 
+  //注册用户
+  
   //退出
   const logout = ()=>{
     id.value = "";
     username.value = "";
     photo.value = "";
     token.value = "";
+    //把浏览器中指定token删除
+    localStorage.removeItem("jwt_token");
     is_login.value = false;
   }
       return {id, username,photo,token,is_login,pulling_info,login,getInfo,logout};

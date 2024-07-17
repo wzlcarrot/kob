@@ -48,9 +48,9 @@ const logout = () => {
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" role="button">
+          <router-link class="nav-link" :to="{name:'user_account_register'}" role="button">
             注册
-          </a>
+          </router-link>
         </li>
       </ul>
     </div>
@@ -59,4 +59,5 @@ const logout = () => {
 </template>
 
 <style scoped>
+
 </style>

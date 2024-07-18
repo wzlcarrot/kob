@@ -1,5 +1,5 @@
 <template>
-   <ContentField>对战</ContentField>
+   <ContentField>我的bot</ContentField>
 </template>
 
 <script setup>

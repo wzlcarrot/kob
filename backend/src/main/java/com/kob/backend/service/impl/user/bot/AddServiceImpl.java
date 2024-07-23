@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -20,14 +21,16 @@ public class AddServiceImpl implements AddService {
     @Autowired
     private BotMapper botMapper;
     @Override
-    public Map<String, String> add(Map<String, String> data) {
-        UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl loginUser = (UserDetailsImpl) authentication.getPrincipal();
+    public Map<String, String> add(@RequestParam Map<String, String> data) {
+        UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         User user = loginUser.getUser();
 
         String title  = data.get("title");
         String description = data.get("description");
         String content = data.get("content");
+        System.out.println(title+" "+description+" "+content);
+
         Map<String,String> map = new HashMap<>();
 
         if(title==null||title.length()==0){

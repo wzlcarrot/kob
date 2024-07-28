@@ -11,13 +11,13 @@
     import { GameMap } from '@/assets/scripts/GameMap';
     import {onMounted, ref} from 'vue';
     import { usePkStore } from '@/store/pk';
-    const pkStore = usePkStore();
 
     let parent = ref(null);
     let canvas = ref(null);
     onMounted(() => {
+        const pkStore = usePkStore();
         //当组件挂载后，创建GameMap实例
-        new GameMap(canvas.value.getContext('2d'), parent.value,pkStore);
+        pkStore.updateGameObject(new GameMap(canvas.value.getContext('2d'), parent.value,pkStore));
     });
 </script>
 

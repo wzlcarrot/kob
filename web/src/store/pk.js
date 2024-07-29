@@ -14,7 +14,7 @@ export const usePkStore = defineStore('pk',()=>{
     let b_sx = ref(0);
     let b_sy = ref(0);
     let gameObject = ref(null);
-    let loser = ref("none");
+    let loser = ref("none"); //all表示平局 a表示a输 b 表示b输 none表示没有输家
 
     const updateSocket = (s) => {
         socket.value = s;

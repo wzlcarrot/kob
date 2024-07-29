@@ -4,6 +4,7 @@
     import { useUserStore } from '@/store/user';
     import { usePkStore } from '@/store/pk';
     import MatchGround from '@/components/MatchGround.vue';
+    import ResultBoard from '@/components/ResultBoard.vue';
 
     const pkStore = usePkStore();
     const userStore = useUserStore();
@@ -40,7 +41,7 @@
         //当链接收到消息时，也就是后端向前端发送数据
         socket.onmessage = msg => {
             const data = JSON.parse(msg.data);
-            console.log("data:"+data);
+            console.log("data.event:"+data.event);
             if(data.event === "start-matching"){
                 //匹配成功，则更新对手的信息
                 pkStore.updateOpponent({
@@ -58,14 +59,27 @@
 
             }
             else if(data.event === "move"){
-                console.log(data);
+                console.log("move:"+data);
                 const game = pkStore.gameObject;
                 const [snake0,snake1] = game.snakes;
+               
                 snake0.set_direction(data.a_direction);
                 snake1.set_direction(data.b_direction);
             }
             else if(data.event === "result"){
                 console.log(data);
+                const game = pkStore.gameObject;
+                const [snake0,snake1] = game.snakes;
+
+                if(data.loser === "all" || data.loser === "A"){
+                    snake0.status = "die";
+                }
+                else if(data.loser ==="all" || data.loser === "B"){
+                    snake1.status = "die";
+                } 
+                
+                //更新loser数据
+                pkStore.updateLoser(data.loser);
             }
         }
 
@@ -83,6 +97,8 @@
 <template>
     <PlayGround v-if="pkStore.status === 'playing'"/>
     <MatchGround v-if="pkStore.status === 'matching'"></MatchGround>
+    <ResultBoard v-if="pkStore.loser!='none'"></ResultBoard>
+
 </template>
 
 

@@ -2,10 +2,13 @@ package com.kob.backend.consumer.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.WebSocketServer;
+import com.kob.backend.pojo.Record;
 import org.apache.ibatis.cache.decorators.BlockingCache;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -133,72 +136,149 @@ public class Game extends Thread{
         }
     }
 
+    private boolean check_valid(List<Cell> cellsA, List<Cell> cellsB) {
+        int n = cellsA.size();
+        if(n==0) return false;
+        Cell cell = cellsA.get(n - 1);
+        if (g[cell.x][cell.y] == 1) return false;
+
+        for (int i = 0; i < n - 1; i ++ ) {
+            if (cellsA.get(i).x == cell.x && cellsA.get(i).y == cell.y)
+                return false;
+        }
+
+        for (int i = 0; i < n - 1; i ++ ) {
+            if (cellsB.get(i).x == cell.x && cellsB.get(i).y == cell.y)
+                return false;
+        }
+
+        return true;
+    }
+
+
+
     //判断两名玩家下一步是否合法
     private void judge(){
+        List<Cell> cellsA = new ArrayList<>();
+        List<Cell> cellsB = new ArrayList<>();
 
+        boolean validA = check_valid(cellsA,cellsB);
+        boolean validB = check_valid(cellsB,cellsA);
+
+        if(!validA||!validB){
+            status = "finished";
+
+            //判断游戏的胜负
+            if(validA==false&&validB==false){
+                loser = "all";
+            }
+            else if(!validA&&validB){
+                loser = "A";
+            }
+            else{
+                loser = "B";
+            }
+        }
     }
 
     //向两个client传递移动信息
-    private void sendMove(){
+    private void sendMove() {  // 向两个Client传递移动信息
         lock.lock();
         try {
             JSONObject resp = new JSONObject();
-            resp.put("event","move");
-            resp.put("a_direction",nextStepA);
-            resp.put("b_direction",nextStepB);
+            resp.put("event", "move");
+            resp.put("a_direction", nextStepA);
+            resp.put("b_direction", nextStepB);
 
             sendAllMessage(resp.toJSONString());
+            System.out.println("resp:"+resp.toJSONString());
             nextStepA = nextStepB = null;
-        }finally {
+        } finally {
             lock.unlock();
         }
-
-
     }
-    //向两个client公布结果
-    private void sendResult(){
-        JSONObject resp = new JSONObject();
-        resp.put("event","result");
 
-        resp.put("loser",loser);
+    private String getMapString(){
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(int i=0;i<this.rows;i++){
+            for(int j=0;j<this.cols;j++){
+                stringBuilder.append(g[i][j]);
+            }
+        }
+
+        return stringBuilder.toString();
+    }
+
+    private void saveToDatabase(){
+        Record record = new Record(
+                null,
+                playerA.getId(),
+                playerA.getSx(),
+                playerA.getSy(),
+
+                playerB.getId(),
+                playerB.getSx(),
+                playerB.getSy(),
+
+                playerA.getStepString(),
+                playerB.getStepString(),
+
+                getMapString(),
+
+                loser,
+
+                new Date()
+        );
+
+        WebSocketServer.recordMapper.insert(record);
+    }
+
+    //向两个client公布结果
+    private void sendResult() {  // 向两个Client公布结果
+        JSONObject resp = new JSONObject();
+        resp.put("event", "result");
+        resp.put("loser", loser);
+
+        saveToDatabase();
         sendAllMessage(resp.toJSONString());
     }
 
-    private void sendAllMessage(String message){
-        WebSocketServer.users.get(playerA.getId()).sendMessage(message);
 
-        WebSocketServer.users.get(playerB.getId()).sendMessage(message);
+
+    private void sendAllMessage(String message) {
+        if (WebSocketServer.users.get(playerA.getId()) != null)
+            WebSocketServer.users.get(playerA.getId()).sendMessage(message);
+        if (WebSocketServer.users.get(playerB.getId()) != null)
+            WebSocketServer.users.get(playerB.getId()).sendMessage(message);
     }
-    public void run(){
-        for(int i=0;i<1000;i++){
-            //是否获取了两条蛇下一步操作
-            if(nextStep()){
+
+    @Override
+    public void run() {
+        System.out.println("status:"+status);
+        for (int i = 0; i < 1000; i ++ ) {
+            if (nextStep()) {  // 是否获取了两条蛇的下一步操作
                 judge();
-                if(status.equals("playing")){
+                if (status.equals("playing")) {
                     sendMove();
-                }
-                else{
+                } else {
                     sendResult();
                     break;
                 }
-            }
-            else{
+            } else {
                 status = "finished";
                 lock.lock();
-                try{
-                    if(nextStepA == null&& nextStepB == null){
+                try {
+                    if (nextStepA == null && nextStepB == null) {
                         loser = "all";
-                    }
-                    else if(nextStepA == null){
+                    } else if (nextStepA == null) {
                         loser = "A";
-                    }
-                    else{
+                    } else {
                         loser = "B";
                     }
-                }finally {
+                } finally {
                     lock.unlock();
                 }
-
                 sendResult();
                 break;
             }
@@ -212,9 +292,9 @@ public class Game extends Thread{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        for(int i=0;i<5;i++){
+        for(int i=0;i<50;i++){
             try{
-                Thread.sleep(1000);
+                Thread.sleep(100);
                 lock.lock();
                 try {
                     if (nextStepA != null && nextStepB != null) {

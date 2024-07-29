@@ -3,6 +3,7 @@ package com.kob.backend.consumer;
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.utils.Game;
 import com.kob.backend.consumer.utils.JwtAuthentication;
+import com.kob.backend.mapper.RecordMapper;
 import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +36,17 @@ public class WebSocketServer {
     private User user;
 
     private static UserMapper userMapper;
+    public static RecordMapper recordMapper;
 
     private Game game = null;
     @Autowired
     public void setUserMapper(UserMapper userMapper){
         this.userMapper = userMapper;
+    }
+
+    @Autowired
+    public void setRecordMapper(RecordMapper recordMapper){
+        this.recordMapper = recordMapper;
     }
 
     @OnOpen
@@ -90,6 +97,7 @@ public class WebSocketServer {
             //玩家a和b的地图和比赛是一样的
             users.get(A.getId()).game = game;
             users.get(B.getId()).game = game;
+
             game.start();
 
             //向前端发送信息
@@ -142,15 +150,16 @@ public class WebSocketServer {
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
         System.out.println("event:"+event);
-        if(event.equals("start-matching")==true){
+        if(event.equals("start-matching")){
             System.out.println("start-matching");
             startMatching();
         }
-        else if(event.equals("stop-matching")==true){
-            System.out.println("stop-matching");
+        else if(event.equals("result")){
+            System.out.println("result");
             stopMatching();
         }
-        else if("move".equals(event)==true){
+        else if("move".equals(event)){
+            System.out.println("direction:"+data.getInteger("direction"));
             move(data.getInteger("direction"));
         }
 

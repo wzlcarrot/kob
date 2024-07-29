@@ -159,8 +159,8 @@ public class Game extends Thread{
 
     //判断两名玩家下一步是否合法
     private void judge(){
-        List<Cell> cellsA = new ArrayList<>();
-        List<Cell> cellsB = new ArrayList<>();
+        List<Cell> cellsA = playerA.getCells();
+        List<Cell> cellsB = playerB.getCells();
 
         boolean validA = check_valid(cellsA,cellsB);
         boolean validB = check_valid(cellsB,cellsA);
@@ -172,7 +172,7 @@ public class Game extends Thread{
             if(validA==false&&validB==false){
                 loser = "all";
             }
-            else if(!validA&&validB){
+            else if(!validA){
                 loser = "A";
             }
             else{
@@ -292,7 +292,7 @@ public class Game extends Thread{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        for(int i=0;i<50;i++){
+        for(int i=0;i<500;i++){
             try{
                 Thread.sleep(100);
                 lock.lock();

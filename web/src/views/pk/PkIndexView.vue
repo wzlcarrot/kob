@@ -11,6 +11,7 @@
 
     //链接地址
     const socketUrl = `ws://127.0.0.1:3000/websocket/${userStore.token}/`;
+    pkStore.updateLoser("none");
 
     let socket = null;
     //当组件加载，也就是页面加载成功时。
@@ -52,7 +53,7 @@
                 //2s后执行代码,变换状态
                 setTimeout(()=>{
                     pkStore.updateStatus("playing");
-                },2000);
+                },100);
 
                 //更新地图
                 pkStore.updateGame(data.game);

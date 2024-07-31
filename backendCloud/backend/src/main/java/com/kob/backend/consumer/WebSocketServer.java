@@ -3,8 +3,10 @@ package com.kob.backend.consumer;
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.utils.Game;
 import com.kob.backend.consumer.utils.JwtAuthentication;
+import com.kob.backend.mapper.BotMapper;
 import com.kob.backend.mapper.RecordMapper;
 import com.kob.backend.mapper.UserMapper;
+import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,23 +40,29 @@ public class WebSocketServer {
 
     private static UserMapper userMapper;
     public static RecordMapper recordMapper;
+    public static BotMapper botMapper;
 
     //可以让两个springboot进行通信
-    private static RestTemplate restTemplate;
+    public static RestTemplate restTemplate;
 
-    private Game game = null;
+    public Game game = null;
 
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
 
     @Autowired
     public void setUserMapper(UserMapper userMapper){
-        this.userMapper = userMapper;
+        WebSocketServer.userMapper = userMapper;
     }
 
     @Autowired
     public void setRecordMapper(RecordMapper recordMapper){
-        this.recordMapper = recordMapper;
+        WebSocketServer.recordMapper = recordMapper;
+    }
+
+    @Autowired
+    public void setBotMapper(BotMapper botMapper){
+        WebSocketServer.botMapper = botMapper;
     }
 
     @Autowired
@@ -94,11 +102,19 @@ public class WebSocketServer {
         }
     }
 
-    public static void startGame(Integer aId,Integer bId){
+    public static void startGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId){
         User A = userMapper.selectById(aId);
         User B = userMapper.selectById(bId);
+        Bot botA = botMapper.selectById(aBotId);
+        Bot botB = botMapper.selectById(bBotId);
 
-        Game game = new Game(13,14,20,A.getId(),B.getId());
+        Game game = new Game(13,
+                14,
+                20,
+                A.getId(),
+                botA,
+                B.getId(),
+                botB);
         game.createMap();
 
         //玩家a和b的地图和比赛是一样的
@@ -137,12 +153,13 @@ public class WebSocketServer {
 
     }
 
-    private void startMatching() {
+    private void startMatching(Integer botId) {
         System.out.println("user start matching!");
         MultiValueMap<String,String> data = new LinkedMultiValueMap<>();
 
         data.add("user_id",this.user.getId().toString());
         data.add("rating",this.user.getRating().toString());
+        data.add("bot_id",botId.toString());
 
         //后端请求匹配系统，添加玩家链接
         restTemplate.postForObject(addPlayerUrl,data,String.class);
@@ -163,10 +180,11 @@ public class WebSocketServer {
 
         //如果当前的用户是A
         if(game.getPlayerA().getId().equals(user.getId())){
-            game.setNextStepA(direction);
+            //如果是人工的话，
+            if(game.getPlayerA().getBotId().equals(-1)) game.setNextStepA(direction);
         }
         else if(game.getPlayerB().getId().equals(user.getId())){
-            game.setNextStepB(direction);
+            if(game.getPlayerB().getBotId().equals(-1)) game.setNextStepB(direction);
         }
     }
 
@@ -179,7 +197,7 @@ public class WebSocketServer {
         System.out.println("event:"+event);
         if(event.equals("start-matching")){
             System.out.println("start-matching");
-            startMatching();
+            startMatching(data.getInteger("bot_id"));
         }
         else if(event.equals("stop-matching")){
             System.out.println("stop-matching+111111111111");

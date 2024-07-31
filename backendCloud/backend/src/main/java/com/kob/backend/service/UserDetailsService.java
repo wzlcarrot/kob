@@ -1,6 +1,8 @@
 package com.kob.backend.service;
 
-public interface UserDetailsService {
+import org.springframework.stereotype.Service;
 
+@Service
+public interface UserDetailsService {
 
 }

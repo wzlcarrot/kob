@@ -12,6 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 public class Player {
     private Integer id;
+    private Integer botId;  //-1表示人，正数表示机器
+    private String botCode;
+
     private Integer sx;
     private Integer sy;
     private List<Integer> step;
@@ -47,6 +50,7 @@ public class Player {
         return res;
     }
 
+    //将操作步骤转换成字符串
     public String getStepString(){
         StringBuilder stringBuilder = new StringBuilder();
         for(int d:step){

@@ -53,6 +53,7 @@ public class Consumer extends Thread{
         UUID uuid = UUID.randomUUID();
         String uid = uuid.toString().substring(0, 8);
 
+        //对com.kob.botRunningSystem.utils.Bot类进行编译
         BotInterface botInterface = Reflect.compile(
                 "com.kob.botRunningSystem.utils.Bot" + uid,
                 addUid(bot.getBotCode(), uid)

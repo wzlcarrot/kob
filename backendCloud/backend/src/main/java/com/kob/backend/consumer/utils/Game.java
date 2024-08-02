@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.WebSocketServer;
 import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.Record;
+import com.kob.backend.pojo.User;
 import org.apache.ibatis.cache.decorators.BlockingCache;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.util.LinkedMultiValueMap;
@@ -229,7 +230,31 @@ public class Game extends Thread{
         return stringBuilder.toString();
     }
 
+    //更新用户的天梯积分
+    private void updateUserRating(Player player,Integer rating){
+        User user = WebSocketServer.userMapper.selectById(player.getId());
+        user.setRating(rating);
+        WebSocketServer.userMapper.updateById(user);
+    }
+
     private void saveToDatabase(){
+
+        //游戏结束，更新积分
+        Integer ratingA = WebSocketServer.userMapper.selectById(playerA.getId()).getRating();
+        Integer ratingB = WebSocketServer.userMapper.selectById(playerB.getId()).getRating();
+
+        if(loser=="A"){
+            ratingA+=10;
+            ratingB-=10;
+        }
+        else if(loser=="B"){
+            ratingA+=10;
+            ratingB-=10;
+        }
+
+        updateUserRating(playerA,ratingA);
+        updateUserRating(playerB,ratingB);
+
         Record record = new Record(
                 null,
                 playerA.getId(),
@@ -338,7 +363,7 @@ public class Game extends Thread{
     //等待两名玩家的下一步操作
     private boolean nextStep(){
         try {
-            Thread.sleep(200);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

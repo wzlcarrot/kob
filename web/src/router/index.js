@@ -6,6 +6,8 @@ import UserBotIndexView from '../views/user/bot/UserBotIndexView.vue'
 import RecordIndexView from '../views/record/RecordIndexView.vue'
 import UserAccountLoginView from '@/views/user/account/UserAccountLoginView.vue'
 import UserAccountRegisterView from '@/views/user/account/UserAccountRegisterView.vue'
+import RecordContentView from '@/views/record/RecordContentView.vue'
+
 import { useUserStore } from '@/store/user'
 
 const routes = [
@@ -26,11 +28,19 @@ const routes = [
     }
   },
   {
-    path:"/record/",
-    name:"record_index",
-    component:RecordIndexView,
-    meta:{
-      requestAuth:true //true表示record页面需要授权
+    path: "/record/",
+    name: "record_index",
+    component: RecordIndexView,
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: "/record/:recordId/",
+    name: "record_content",
+    component: RecordContentView,
+    meta: {
+      requestAuth: true,
     }
   },
   {

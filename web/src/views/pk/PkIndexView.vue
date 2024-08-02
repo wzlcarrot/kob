@@ -5,13 +5,19 @@
     import { usePkStore } from '@/store/pk';
     import MatchGround from '@/components/MatchGround.vue';
     import ResultBoard from '@/components/ResultBoard.vue';
+    import { useRecordStore } from '@/store/record';
 
     const pkStore = usePkStore();
     const userStore = useUserStore();
+    const recordStore = useRecordStore();
 
     //链接地址
     const socketUrl = `ws://127.0.0.1:3000/websocket/${userStore.token}/`;
+
+    //最开始更新一下，让resultBoard消失
     pkStore.updateLoser("none");
+    recordStore.updateRecord(false);
+   
 
     let socket = null;
     //当组件加载，也就是页面加载成功时。
@@ -53,7 +59,7 @@
                 //2s后执行代码,变换状态
                 setTimeout(()=>{
                     pkStore.updateStatus("playing");
-                },100);
+                },200);
 
                 //更新地图
                 pkStore.updateGame(data.game);

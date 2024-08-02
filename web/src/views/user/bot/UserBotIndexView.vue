@@ -58,6 +58,7 @@
             content: content.value
          },
          success(resp){
+            console.log("message:"+resp.message);
             if(resp.message==="success"){
                //如果创建成功，则更新bot         
                refresh_bots();
@@ -69,6 +70,7 @@
             }
             else{
                message.value = resp.message;
+               console.log("message:"+message.value);
        
             }
          },

@@ -70,8 +70,7 @@
             }
             else{
                message.value = resp.message;
-               console.log("message:"+message.value);
-       
+             
             }
          },
          error(resp){
